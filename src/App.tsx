@@ -146,6 +146,14 @@ export default class App extends React.Component {
         amount: this.state.amount,
         result: result.toFixed(2),
         date: Date.now()
+      }).then(() => {
+        db.collection("conversions").where("profileID", "==", this.state.profileID).orderBy("date", "desc").get().then(conversions => {
+          if (conversions.size >= HISTORY_MAX_COUNT) {
+            const docs = conversions.docs;
+            const oldest = docs[docs.length - 1];
+            oldest.ref.delete();
+          }
+        });
       });
     }
   }
@@ -169,7 +177,7 @@ export default class App extends React.Component {
         });
       });
       console.log('history', history)
-      this.setState({ history: history.slice(0, HISTORY_MAX_COUNT) });
+      this.setState({ history });
     }).catch(err => {
       console.log('Error getting documents', err);
     });
