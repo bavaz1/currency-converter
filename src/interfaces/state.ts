@@ -8,6 +8,6 @@ export default interface State {
   amount: number,
   result: number,
   authUser: firebase.User | null,
-  googleID: string | null,
+  profileID: string | null,
   history: Array<History> | null
 }

@@ -57,7 +57,7 @@ export default class App extends React.Component {
     amount: 0,
     result: 0,
     authUser: null,
-    googleID: null,
+    profileID: null,
     history: null
   };
 
@@ -90,28 +90,25 @@ export default class App extends React.Component {
     const that = this;
     firebase.auth().signInWithPopup(provider).then(function(result) {
       const profile: any = result!.additionalUserInfo!.profile;
-      // TODO: If the user is already saved, do not save again
       if (profile) {
-        db.collection("users").add({
+        db.collection("users").doc(profile.id).set({
           name: profile.name,
-          email: profile.email,
-          googleID: profile.id
+          email: profile.email
         });
-        that.setState({ authUser: result.user, googleID: profile.id });
+        that.setState({ authUser: result.user, profileID: profile.id });
       }
     }).then(() => this.setHistory());
   }
 
   handleSignOut() {
     console.log(this.state.authUser);
-    this.setState({ authUser: null })
+    this.setState({ authUser: null, history: null })
   }
 
   saveConversion(result: number) {
-    // TODO: state.result is always behind with one step (thats why, the first result is always 0)
-    if (this.state.googleID) {
+    if (this.state.profileID) {
       db.collection("conversions").add({
-        googleID: this.state.googleID,
+        profileID: this.state.profileID,
         from: this.state.from,
         to: this.state.to,
         amount: this.state.amount,
@@ -122,13 +119,12 @@ export default class App extends React.Component {
   }
 
   setHistory() {
-    db.collection("conversions").where("googleID", "==", this.state.googleID).get().then(conversions => {
+    db.collection("conversions").where("profileID", "==", this.state.profileID).get().then(conversions => {
       if (conversions.empty) {
         console.log('Your history is empty.');
         return;
       }
 
-      // TODO: Date isn't show in the table
       const history: Array<History> = [];
       conversions.forEach(doc => {
         const conversion = doc.data();
