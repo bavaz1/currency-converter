@@ -7,6 +7,7 @@ const getHeader = (history: any) => {
     for (let i = 0; i < Object.keys(history[0]).length; i++) {
       headers.push(<Table.HeaderCell>{Object.keys(history[0])[i]}</Table.HeaderCell>)
     }
+    console.log('headers', headers);
     return (
       <Table.Header>
         <Table.Row>
@@ -22,17 +23,20 @@ const getBody = (history: any) => {
   const rows = [];
   if (history !== null && history.length !== 0) {
     for (let i = 0; i < history.length; i++) {
-      for (let j = 0; j < Object.keys(history[i]).length; i++) {
-        rows.push(
-          <Table.Cell>{history[i][j]}</Table.Cell>
-        )
-      }
+      rows.push(
+        <Table.Row>
+          <Table.Cell>{history[i].from}</Table.Cell>
+          <Table.Cell>{history[i].to}</Table.Cell>
+          <Table.Cell>{history[i].amount}</Table.Cell>
+          <Table.Cell>{history[i].result}</Table.Cell>
+          <Table.Cell>{history[i].date}</Table.Cell>
+        </Table.Row>
+      )
     }
+    console.log('rows', rows);
     return (
       <Table.Body>
-        <Table.Row>
-          {rows}
-        </Table.Row>
+        {rows}
       </Table.Body>
     )
   }

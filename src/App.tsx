@@ -78,8 +78,8 @@ export default class App extends React.Component {
         // TODO: Fix NaN possibility
         const result = this.state.amount * res.data.rates[this.state.to];
         this.setState({ result });
+        this.saveConversion(result);
       });
-    this.saveConversion();
     if (this.isSignedIn()) {
       this.setHistory();
     }
@@ -107,7 +107,7 @@ export default class App extends React.Component {
     this.setState({ authUser: null })
   }
 
-  saveConversion() {
+  saveConversion(result: number) {
     // TODO: state.result is always behind with one step (thats why, the first result is always 0)
     if (this.state.googleID) {
       db.collection("conversions").add({
@@ -115,7 +115,7 @@ export default class App extends React.Component {
         from: this.state.from,
         to: this.state.to,
         amount: this.state.amount,
-        result: this.state.result.toFixed(2),
+        result: result.toFixed(2),
         date: Date.now()
       });
     }
@@ -140,7 +140,7 @@ export default class App extends React.Component {
           date: conversion.date
         });
       });
-      console.log(history)
+      console.log('history', history)
       this.setState({ history: history.slice(0, HISTORY_MAX_COUNT) });
     }).catch(err => {
       console.log('Error getting documents', err);
