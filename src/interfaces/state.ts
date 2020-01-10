@@ -7,6 +7,7 @@ export default interface State {
   to: string,
   amount: number,
   result: number,
+  error: string,
   authUser: firebase.User | null,
   profileID: string | null,
   history: Array<History> | null

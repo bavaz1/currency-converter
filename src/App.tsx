@@ -56,6 +56,7 @@ export default class App extends React.Component {
     to: '',
     amount: 0,
     result: 0,
+    error: '',
     authUser: null,
     profileID: null,
     history: null
@@ -71,17 +72,27 @@ export default class App extends React.Component {
     });
   }
 
+  hasEmpty() {
+    if (!this.state.to || !this.state.from) {
+      this.setState({ error: 'The currencies cannot be empty!' });
+      return true;
+    }
+    this.setState({ error: '' });
+    return false;
+  }
+
   handleSubmit(event: any) {
-    event.preventDefault();
-    axios.get(`${EXCHANGE_API_URI}?base=${this.state.from}`)
-      .then(res => {
-        // TODO: Fix NaN possibility
-        const result = this.state.amount * res.data.rates[this.state.to];
-        this.setState({ result });
-        this.saveConversion(result);
-      });
-    if (this.isSignedIn()) {
-      this.setHistory();
+    if (!this.hasEmpty()) {
+      event.preventDefault();
+      axios.get(`${EXCHANGE_API_URI}?base=${this.state.from}`)
+        .then(res => {
+          const result = this.state.amount * res.data.rates[this.state.to];
+          this.setState({ result });
+          this.saveConversion(result);
+        });
+      if (this.isSignedIn()) {
+        this.setHistory();
+      }
     }
   }
 
@@ -162,6 +173,19 @@ export default class App extends React.Component {
     )
   }
 
+  showErrorMessage() {
+    if (this.state.error !== '') {
+      return (
+        <div className="ui message">
+          <div className="header">
+            Error
+          </div>
+          <p>{this.state.error}</p>
+        </div>
+      )
+    }
+  }
+
   render() {
     return (
       <div>
@@ -172,12 +196,13 @@ export default class App extends React.Component {
         {this.isSignedIn()}
 
         <Form onSubmit={this.handleSubmit}>
-          <Form.Dropdown name='from' label='From:' placeholder='EUR' search selection options={this.state.currencies} onChange={this.handleChange} required/>
+          <Form.Dropdown name='from' label='From:' placeholder='EUR' search selection options={this.state.currencies} onChange={this.handleChange}/>
           <Form.Input value={this.state.amount} type='text' name='amount' onChange={this.handleChange} required/>
 
-          <Form.Dropdown name='to' label='To:' placeholder='HUF' search selection options={this.state.currencies} onChange={this.handleChange} required/>
+          <Form.Dropdown name='to' label='To:' placeholder='HUF' search selection options={this.state.currencies} onChange={this.handleChange}/>
           <Form.Input value={this.state.result.toFixed(2)} type='text' name='result' disabled onChange={this.handleChange}/>
 
+          {this.showErrorMessage()}
           <Button type='submit'>Convert</Button>
         </Form>
 
