@@ -12,6 +12,7 @@ const EXCHANGE_API_URI = 'https://api.exchangeratesapi.io/latest';
 
 firebase.initializeApp(config);
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const getCurrencyValues = (res: any) => {
   const currencyValues = Object.keys(res.data.rates);
@@ -81,6 +82,23 @@ export default class App extends React.Component {
     return false;
   }
 
+  getLog(res: any, result: number): string {
+    const log = {
+      exchange: {
+        method: res.config.method,
+        url: res.config.url
+      },
+      profileID: this.state.profileID || 'not signed in',
+      conversion: {
+        from: this.state.from,
+        to: this.state.to,
+        amount: this.state.amount,
+        result: result
+      }
+    }
+    return JSON.stringify(log, null, 2);
+  }
+
   handleSubmit(event: any) {
     if (!this.hasEmpty()) {
       event.preventDefault();
@@ -89,6 +107,9 @@ export default class App extends React.Component {
           const result = this.state.amount * res.data.rates[this.state.to];
           this.setState({ result });
           this.saveConversion(result);
+          const log = this.getLog(res, result);
+          const storageRef = storage.ref().child(`logs/${new Date().getTime()}`);
+          storageRef.putString(log);
         });
       if (this.isSignedIn()) {
         this.setHistory();
