@@ -130,7 +130,7 @@ export default class App extends React.Component {
   }
 
   setHistory() {
-    db.collection("conversions").where("profileID", "==", this.state.profileID).get().then(conversions => {
+    db.collection("conversions").where("profileID", "==", this.state.profileID).orderBy("date", "desc").get().then(conversions => {
       if (conversions.empty) {
         console.log('Your history is empty.');
         return;

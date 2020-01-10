@@ -1,5 +1,6 @@
 import React from 'react'
 import { Table } from 'semantic-ui-react'
+import moment from 'moment'
 
 const getHeader = (history: any) => {
   const headers = [];
@@ -23,13 +24,14 @@ const getBody = (history: any) => {
   const rows = [];
   if (history !== null && history.length !== 0) {
     for (let i = 0; i < history.length; i++) {
+      const date = new Date(history[i].date);
       rows.push(
         <Table.Row>
           <Table.Cell>{history[i].from}</Table.Cell>
           <Table.Cell>{history[i].to}</Table.Cell>
           <Table.Cell>{history[i].amount}</Table.Cell>
           <Table.Cell>{history[i].result}</Table.Cell>
-          <Table.Cell>{history[i].date}</Table.Cell>
+          <Table.Cell>{moment(date).format('lll')}</Table.Cell>
         </Table.Row>
       )
     }
